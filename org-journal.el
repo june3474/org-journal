@@ -379,6 +379,12 @@ This runs once per date, before `org-journal-after-entry-create-hook'.")
 
 (defvar org-journal--search-buffer "*Org-journal search*")
 
+(defvar-local org-journal--newly-created-p nil
+  "Will be set to 't' if `org-journal-new-entry' function creates a new 
+journal(i.e., insert a date entry) for today or the given time.
+When today's journal was created before and re-opened later,
+this buffer-local variable remains to be nil.")
+
 
 ;;;###autoload
 (add-hook 'calendar-today-visible-hook 'org-journal-mark-entries)
@@ -711,11 +717,13 @@ hook is run."
           (when org-journal-enable-encryption
             (unless (member org-crypt-tag-matcher (org-get-tags))
               (org-set-tags org-crypt-tag-matcher)))
+          (setq org-journal--newly-created-p t)
           (run-hooks 'org-journal-after-header-create-hook)))
       (org-journal--decrypt)
 
       ;; Move TODOs from previous day to new entry
-      (when (and org-journal-carryover-items
+      (when (and org-journal--newly-created-p
+                 org-journal-carryover-items
                  (not (string-blank-p org-journal-carryover-items))
                  (string= entry-path (org-journal--get-entry-path (current-time))))
         (org-journal--carryover))
@@ -993,7 +1001,8 @@ This is the counterpart of `org-journal--file-name->calendar-date' for
         date)
     (setq date (org-entry-get (point) "CREATED"))
     (unless (ignore-errors (string-match re date))
-      (user-error "Created property timestamp format \"%s\" doesn't match CREATED property value (%s) from entry at line: %s" org-journal-created-property-timestamp-format date (what-line)))
+      (user-error "Created property timestamp format \"%s\" doesn't match CREATED property value (%s) from entry at line: %s"
+                  org-journal-created-property-timestamp-format date (what-line)))
     (list (string-to-number (match-string 2 date))    ;; Month
           (string-to-number (match-string 3 date))    ;; Day
           (string-to-number (match-string 1 date))))) ;; Year
