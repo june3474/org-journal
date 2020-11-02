@@ -748,8 +748,11 @@ hook is run."
                                (format-time-string org-journal-time-format)))
                             ;; “time” is on some other day, use blank timestamp
                             (t ""))))
-          (insert org-journal-time-prefix timestamp))
-        (run-hooks 'org-journal-after-entry-create-hook))
+          (insert org-journal-time-prefix timestamp)))
+
+      ;; Make `org-journal-after-entry-create-hook' available even if we don't create
+      ;; a time entry automatically.
+      (run-hooks 'org-journal-after-entry-create-hook)
 
       (if (and org-journal-hide-entries-p (org-journal--time-entry-level))
           (outline-hide-sublevels (org-journal--time-entry-level))
