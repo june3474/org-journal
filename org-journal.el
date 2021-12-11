@@ -767,7 +767,7 @@ buffer not open already, otherwise `nil'.")
 
 (defun org-journal--empty-journal-p (prev-buffer)
   (let (entry)
-    (with-current-buffer prev-buffer (save-buffer))
+    ;; (with-current-buffer prev-buffer (save-buffer))
     (save-excursion
       (org-journal--open-entry t t)
       (setq entry (if (org-journal--org-heading-p)
