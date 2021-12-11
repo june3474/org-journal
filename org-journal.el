@@ -653,7 +653,9 @@ hook is run."
                                   (nth 8 now)))))  ; timezone
 
     (let* ((entry-path (org-journal--get-entry-path time))
-           (should-add-entry-p (not prefix))
+           ;; if no prefix, do not add entry(** level).
+           ;; That is, no auto-entry is the default.
+           (should-add-entry-p (prefix))
            match)
 
       ;; Open journal file
