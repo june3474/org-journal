@@ -737,29 +737,25 @@ hook is run."
         (unless (eq (current-column) 0) (insert "\n"))
         (let* ((day-discrepancy (- (time-to-days (current-time)) (time-to-days time)))
                (timestamp (cond
-                            ;; “time” is today, use normal timestamp format
-                            ((= day-discrepancy 0)
-                             (format-time-string org-journal-time-format))
-                            ;; “time” is yesterday with org-extend-today-until,
-                            ;; use different timestamp format if available
-                            ((and (= day-discrepancy 1) oetu-active-p)
-                             (if (not (string-equal org-journal-time-format-post-midnight ""))
-                                 (format-time-string org-journal-time-format-post-midnight)
-                               (format-time-string org-journal-time-format)))
-                            ;; “time” is on some other day, use blank timestamp
-                            (t ""))))
+                           ;; “time” is today, use normal timestamp format
+                           ((= day-discrepancy 0)
+                            (format-time-string org-journal-time-format))
+                           ;; “time” is yesterday with org-extend-today-until,
+                           ;; use different timestamp format if available
+                           ((and (= day-discrepancy 1) oetu-active-p)
+                            (if (not (string-equal org-journal-time-format-post-midnight ""))
+                                (format-time-string org-journal-time-format-post-midnight)
+                              (format-time-string org-journal-time-format)))
+                           ;; “time” is on some other day, use blank timestamp
+                           (t ""))))
           (insert org-journal-time-prefix timestamp)))
 
+      ;; move run-hook outside (when should-add-entry-p) block -- by dks
       ;; Make `org-journal-after-entry-create-hook' available even if we don't create
-      ;; a time entry automatically.
+      ;; an entry(time entry) automatically.
       (run-hooks 'org-journal-after-entry-create-hook)
 
-      (if (and org-journal-hide-entries-p (org-journal--time-entry-level))
-          (outline-hide-sublevels (org-journal--time-entry-level))
-        (save-excursion (org-journal--finalize-view)))
-
-      (when should-add-entry-p
-        (outline-show-entry)))))
+      (org-journal--finalize-view))))
 
 (defvar org-journal--kill-buffer nil
   "Will be set to the `t' if `org-journal--open-entry' is visiting a
@@ -1284,14 +1280,15 @@ from oldest to newest."
 
 (defun org-journal--finalize-view ()
   "Finalize visability of entry."
-  (org-journal--decrypt)
-  (if (org-journal--org-heading-p)
-      (progn
-        (org-up-heading-safe)
-        (org-back-to-heading)
-        (outline-hide-other)
-        (outline-show-subtree))
-    (outline-show-all)))
+  (save-excursion 
+    (org-journal--decrypt)
+    (if (org-journal--org-heading-p)
+        (progn
+          (while (org-up-heading-safe))
+          (outline-hide-other)
+          (outline-show-subtree)
+          (org-hide-drawer-all))
+      (outline-show-all))))
 
 ;;;###autoload
 (defun org-journal-read-or-display-entry (time &optional noselect)
