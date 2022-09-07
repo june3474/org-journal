@@ -660,7 +660,7 @@ hook is run."
       (unless (string= entry-path (buffer-file-name))
         (funcall org-journal-find-file entry-path))
 
-      ;; Insure `view-mode' is not active
+      ;; Ensure `view-mode' is not active
       (view-mode -1)
 
       ;; Insert org-journal-file-header
@@ -750,7 +750,7 @@ hook is run."
                            (t ""))))
           (insert org-journal-time-prefix timestamp)))
 
-      ;; move run-hook outside (when should-add-entry-p) block -- by dks
+      ;; move run-hooks outside (when should-add-entry-p) block -- by dks
       ;; Make `org-journal-after-entry-create-hook' available even if we don't create
       ;; an entry(time entry) automatically.
       (run-hooks 'org-journal-after-entry-create-hook)
