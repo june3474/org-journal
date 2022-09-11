@@ -953,7 +953,6 @@ previous day's file to the current file."
                          (setcdr (last cleared-carryover-paths) cleared-paths)
                        (setq cleared-carryover-paths cleared-paths))
              (setq prev-paths paths)))
-        (message "text-headings:\n%s" text-headings)
         (if org-journal-carryover-headings-only
             (org-journal-carryover-items text-headings cleared-carryover-paths prev-buffer)
           (org-journal-carryover-items text cleared-carryover-paths prev-buffer)))
