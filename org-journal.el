@@ -219,11 +219,13 @@ By default, this is an org-mode sub-heading."
   :type 'string)
 
 (defcustom org-journal-hide-entries-p t
-  "If true, `org-journal-mode' will hide all but the current entry when creating a new one."
+  "If true, `org-journal-mode' will hide all but the current entry
+when creating a new one."
   :type 'boolean)
 
 (defcustom org-journal-enable-encryption nil
-  "If non-nil, new journal entries will have a `org-crypt-tag-matcher' tag for encrypting.
+  "If non-nil, new journal entries will have a `org-crypt-tag-matcher' tag
+for encrypting.
 
 Whenever a user saves/opens these journal entries, emacs asks a user passphrase
 to encrypt/decrypt it."
@@ -242,7 +244,8 @@ It can be set to other hooks like `kill-buffer-hook'."
   :type 'function)
 
 (defcustom org-journal-enable-agenda-integration nil
-  "If non-nil, automatically adds current and future org-journal files to `org-agenda-files'."
+  "If non-nil, automatically adds current and future org-journal files
+to `org-agenda-files'."
   :type 'boolean)
 
 (defcustom org-journal-find-file 'find-file-other-window
@@ -252,7 +255,8 @@ Set this to `find-file' if you don't want org-journal to split your window."
   :type 'function)
 
 (defcustom org-journal-carryover-items "TODO=\"TODO\""
-  "Carry over items that match these criteria from the previous entry to new entries.
+  "Carry over items that match these criteria from the previous entry to
+new entries.
 
 See agenda tags view match description for the format of this."
   :type 'string)
@@ -260,17 +264,24 @@ See agenda tags view match description for the format of this."
 (defcustom org-journal-skip-carryover-drawers nil
   "By default, we carry over all the drawers associated with the items.
 
-This option can be used to skip certain drawers being carried over. The drawers listed
-here will be wiped completely, when the item gets carried over."
+This option can be used to skip certain drawers being carried over.
+The drawers listed here will be wiped completely, when the item gets
+carried over."
   :type 'list)
+
+(defcustom org-journal-carryover-headings-only nil
+  "If non-nil, carry over only headings plus assosiated drawers available.
+
+--added by dks"
+  :type 'boolean)
 
 (defcustom org-journal-handle-old-carryover 'org-journal--delete-old-carryover
   "The function to handle the carryover entries in the previous journal.
 
 This function takes one argument, which is a list of the carryover entries
 in the journal of previous day.
-The list is in form of ((START_POINT (END_POINT . \"TEXT\")) ... (START_POINT (END_POINT . \"TEXT\"))); 
-and in ascending order of START_POINT.
+The list is in form of ((START_POINT (END_POINT . \"TEXT\")) ...
+(START_POINT (END_POINT . \"TEXT\"))); and in ascending order of START_POINT.
 
 Default is the function `org-journal--delete-old-carryover' to delete them all."
   :type 'function)
@@ -278,15 +289,16 @@ Default is the function `org-journal--delete-old-carryover' to delete them all."
 (defcustom org-journal-carryover-delete-empty-journal 'never
   "Delete empty journal entry/file after carryover.
 
-Default is to `never' delete an empty journal entry/file. Other options are `always',
-i.e. don't prompt, just delete or `ask'"
+Default is to `never' delete an empty journal entry/file.
+Other options are `always',i.e. don't prompt, just delete or `ask'"
   :type '(choice
           (const :tag "never" never)
           (const :tag "always" always)
           (const :tag "ask" ask)))
 
 (defcustom org-journal-search-results-order-by :asc
-  "When :desc, make search results ordered by date descending, otherwise date ascending."
+  "When :desc, make search results ordered by date descending,
+otherwise date ascending."
   :type 'symbol)
 
 (defcustom org-journal-tag-alist nil
@@ -309,7 +321,8 @@ anywhere in your file."
   :type (get 'org-tag-persistent-alist 'custom-type))
 
 (defcustom org-journal-search-forward-fn 'search-forward
-  "The function used by `org-journal-search` to look for the string forward in a buffer.
+  "The function used by `org-journal-search` to look for the string forward
+in a buffer.
 
 Defaults to search-forward.
 You can, for example, set it to `search-forward-regexp` so the
@@ -403,9 +416,9 @@ this buffer-local variable remains to be nil.")
   (run-mode-hooks))
 
 ;;;###autoload
-(define-obsolete-function-alias 'org-journal-open-next-entry 'org-journal-next-entry)
+(define-obsolete-function-alias 'org-journal-open-next-entry 'org-journal-next-entry "2.1.0")
 ;;;###autoload
-(define-obsolete-function-alias 'org-journal-open-previous-entry 'org-journal-previous-entry)
+(define-obsolete-function-alias 'org-journal-open-previous-entry 'org-journal-previous-entry "2.1.0")
 
 ;; Key bindings
 (when (and (stringp org-journal-prefix-key) (not (string-empty-p org-journal-prefix-key)))
@@ -436,9 +449,11 @@ this buffer-local variable remains to be nil.")
 (global-set-key (kbd "C-c C-j") 'org-journal-new-entry)
 
 (defmacro org-journal--with-journal (file &rest body)
-  "Opens JOURNAL-FILE in fundamental mode, or switches to the buffer which is visiting JOURNAL-FILE.
+  "Opens JOURNAL-FILE in fundamental mode, or switches to the buffer
+which is visiting JOURNAL-FILE.
 
-Returns the last value from BODY. If the buffer didn't exist before it will be deposed."
+Returns the last value from BODY. If the buffer didn't exist before
+it will be deposed."
   ;; Use find-file... instead of view-file... since
   ;; view-file does not respect auto-mode-alist
   `(let* ((buffer-exists (get-buffer (file-name-nondirectory ,file)))
@@ -510,7 +525,8 @@ Returns the last value from BODY. If the buffer didn't exist before it will be d
 
 ;;;###autoload
 (defun org-journal-convert-created-property-timestamps (old-format)
-  "Convert CREATED property timestamps to `org-journal-created-property-timestamp-format'."
+  "Convert CREATED property timestamps to
+`org-journal-created-property-timestamp-format'."
   (interactive "sEnter old format: ")
   (if (org-journal--daily-p)
       (message "Nothing to do, org-journal-file-type is 'daily")
@@ -576,7 +592,8 @@ the first date of the year."
       (mapcar 'string-to-number (split-string (format-time-string "1 1 %Y" time) " "))))))
 
 (defun org-journal--get-entry-path (&optional time)
-  "Return the path to an entry matching TIME, if no TIME is given, uses the current time."
+  "Return the path to an entry matching TIME, if no TIME is given, uses
+the current time."
   (let ((file (file-truename
                (expand-file-name
                 (format-time-string org-journal-file-format
@@ -624,7 +641,8 @@ This allows the use of `org-journal-tag-alist' and
 (defun org-journal-new-entry (prefix &optional time)
   "Open today's journal file and start a new entry.
 
-With a PREFIX arg, open the today's file; create a heading if it doesn't exist yet;
+With a PREFIX arg, open the today's file; create a heading if it doesn't
+exist yet;
 create a new entry.  -- reverted by dks
 
 If given a TIME, create an entry for the time's day. If no TIME was given,
@@ -685,7 +703,7 @@ hook is run."
                        (format-time-string org-journal-date-format time)))))
         (goto-char (point-min))
         (unless (search-forward entry-header nil t)
-          ;; Insure we insert the new journal header at the correct location
+          ;; Ensure we insert the new journal header at the correct location
           (unless (org-journal--daily-p)
             (let ((date (decode-time time))
                   (dates (sort (org-journal--file->calendar-dates (buffer-file-name))
@@ -796,7 +814,7 @@ buffer not open already, otherwise `nil'.")
                                     (lambda (x)
                                       (format ".*%s:[\\n[:ascii:]]+?:END:$" x))
                                     org-journal-skip-carryover-drawers)))))
-
+       
 (defun org-journal--carryover-delete-empty-journal (prev-buffer)
   "Check if the previous entry/file is empty after we carried over the
 items, and delete or not delete the empty entry/file based on
@@ -828,16 +846,17 @@ items, and delete or not delete the empty entry/file based on
 
 If the parent heading has no more content, delete it as well."
   (mapc (lambda (x)
-              (unless (save-excursion
-                        (goto-char (1- (cadr x)))
-                        (org-goto-first-child))
-                (kill-region (car x) (cadr x))))
-            (reverse old_entries)))
+          ;; only if it doesn't have children , i.e., sub-headings
+          (unless (save-excursion
+                    (goto-char (1- (cadr x)))
+                    (org-goto-first-child))
+            (kill-region (car x) (cadr x))))
+        (reverse old_entries)))
 
 (defun org-journal-carryover-items (text entries prev-buffer)
   "Carryover items.
 
-Will insert `entries', and run `org-journal-handle-old-carryover' function
+Will insert `text', and run `org-journal-handle-old-carryover' function
 to process the carryover entries in `prev-buffer'."
   (when entries
     (if (org-journal--org-heading-p)
@@ -846,7 +865,7 @@ to process the carryover entries in `prev-buffer'."
           (outline-end-of-subtree))
       (goto-char (point-max)))
 
-    ;; Insure `view-mode' is not active
+    ;; Ensure `view-mode' is not active
     (view-mode -1)
 
     (unless (eq (current-column) 0) (insert "\n"))
@@ -907,26 +926,37 @@ previous day's file to the current file."
           (setq carryover-paths (org-map-entries mapper org-journal-carryover-items)))))
 
     (when (and prev-buffer carryover-paths)
-      (let (cleared-carryover-paths text)
+      ;; `text-headings-re' and `text-headings' are used to extract the headings only from
+      ;; the carryovers -- added by dks
+      ;; A or more \*, space, heading, optional('*' at the end) drawers following right after
+      (let ((text-headings-re "^\\*+ +.+\n\\(?::[[:ascii:]]+?:\\(?:.\\|\n\\)+?:END:\n\\)*")
+            cleared-carryover-paths text text-headings)
         ;; Construct the text to carryover, and remove any duplicate elements from carryover-paths
         (cl-loop
-           for paths in carryover-paths
-           with prev-paths
-           do (cl-loop
-                 for path in paths
-                 with cleared-paths
-                 count t into counter
-                 do (when (or (not (and prev-paths (nth counter prev-paths)))
-                              (> (car path) (car (nth counter prev-paths))))
-                      (setq text (concat text (cddr path)))
-                      (if cleared-paths
-                          (setcdr (last cleared-paths) (list path))
-                        (setq cleared-paths (list path))))
-                 finally (if cleared-carryover-paths
-                             (setcdr (last cleared-carryover-paths) cleared-paths)
-                           (setq cleared-carryover-paths cleared-paths))
-                   (setq prev-paths paths)))
-        (org-journal-carryover-items text cleared-carryover-paths prev-buffer))
+         for paths in carryover-paths
+         with prev-paths
+         do (cl-loop
+             for path in paths
+             with cleared-paths
+             count t into counter
+             do (when (or (not (and prev-paths (nth counter prev-paths)))
+                          (> (car path) (car (nth counter prev-paths))))
+                  (setq text (concat text (cddr path)))
+                  (setq text-headings (concat text-headings
+                                              (progn
+                                                (string-match text-headings-re (cddr path))
+                                                (match-string 0 (cddr path)))))
+                  (if cleared-paths
+                      (setcdr (last cleared-paths) (list path))
+                    (setq cleared-paths (list path))))
+             finally (if cleared-carryover-paths
+                         (setcdr (last cleared-carryover-paths) cleared-paths)
+                       (setq cleared-carryover-paths cleared-paths))
+             (setq prev-paths paths)))
+        (message "text-headings:\n%s" text-headings)
+        (if org-journal-carryover-headings-only
+            (org-journal-carryover-items text-headings cleared-carryover-paths prev-buffer)
+          (org-journal-carryover-items text cleared-carryover-paths prev-buffer)))
       (org-journal--carryover-delete-empty-journal prev-buffer))
 
     (when org-journal--kill-buffer
@@ -1022,11 +1052,11 @@ This is the counterpart of `org-journal--file-name->calendar-date' for
 (defun org-journal-new-date-entry (prefix &optional event)
   "Open the journal for the date indicated by point and start a new entry.
 
-If the date is not today, it won't be given a time heading. With one prefix (C-u),
-don't add a new heading.
+If the date is not today, it won't be given a time heading.
+With one prefix (C-u), don't add a new heading.
 
-If the date is in the future, create a schedule entry, unless two universal prefix
-arguments (C-u C-u) are given. In that case insert just the heading."
+If the date is in the future, create a schedule entry, unless two universal
+prefix arguments (C-u C-u) are given. In that case insert just the heading."
   (interactive
    (list current-prefix-arg last-nonmenu-event))
   (let* ((time (or (ignore-errors (org-journal--calendar-date->time (calendar-cursor-to-date t event)))
@@ -1060,7 +1090,8 @@ arguments (C-u C-u) are given. In that case insert just the heading."
   (org-journal--finalize-view))
 
 (defun org-journal-sort-dates (dates calendar-date prev)
-  "Sorts DATES to determine the order of journal entries. Can be advised\replaced by a user."
+  "Sorts DATES to determine the order of journal entries.
+Can be advised\replaced by a user."
   (unless (member calendar-date dates)
     (setq dates (copy-tree dates))
     (cl-loop
@@ -1460,8 +1491,8 @@ existed before)."
        result)))
 
 (defun org-journal--update-org-agenda-files ()
-  "Adds the current and future journal files to `org-agenda-files' containing TODOs,
-and cleans out past org-journal files."
+  "Adds the current and future journal files to `org-agenda-files' containing
+TODOs, and cleans out past org-journal files."
   (when org-journal-enable-agenda-integration
     (let ((not-org-journal-agenda-files
            (seq-filter
