@@ -912,7 +912,7 @@ previous day's file to the current file."
                      ;; Since the next subtree now starts at point,
                      ;; continue mapping from before that, to include it
                      ;; in the search
-                     (backward-char)
+                     ;(backward-char)
                      (setq org-map-continue-from (point))
                      headings)))
          carryover-paths prev-buffer)
@@ -949,7 +949,6 @@ previous day's file to the current file."
                   (if cleared-carryover-paths
                       (setcdr (last cleared-carryover-paths) (list path))
                     (setq cleared-carryover-paths (list path))))))
-        (message "cleared-carryover-paths: %S" cleared-carryover-paths)
         (if org-journal-carryover-headings-only
             (org-journal-carryover-items text-headings cleared-carryover-paths prev-buffer)
           (org-journal-carryover-items text cleared-carryover-paths prev-buffer)))
