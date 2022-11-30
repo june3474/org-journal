@@ -912,6 +912,7 @@ previous day's file to the current file."
                      ;; Since the next subtree now starts at point,
                      ;; continue mapping from before that, to include it
                      ;; in the search
+                     (backward-char)
                      (setq org-map-continue-from (point))
                      headings)))
          carryover-paths prev-buffer)
@@ -930,29 +931,25 @@ previous day's file to the current file."
       ;; the carryovers -- added by dks
       ;; A or more \*, space, heading, optional('*' at the end) drawers following right after
       (let ((text-headings-re "^\\*+ +.+\n\\(?::[[:ascii:]]+?:\\(?:.\\|\n\\)+?:END:\n\\)*")
+            (carryovers (list))
             cleared-carryover-paths text text-headings)
         ;; Construct the text to carryover, and remove any duplicate elements from carryover-paths
         (cl-loop
          for paths in carryover-paths
-         with prev-paths
          do (cl-loop
              for path in paths
-             with cleared-paths
              count t into counter
-             do (when (or (not (and prev-paths (nth counter prev-paths)))
-                          (> (car path) (car (nth counter prev-paths))))
+             do (unless (cl-member (cons (car path) (cadr path)) carryovers :test 'equal)
+                  (push (cons (car path) (cadr path)) carryovers)
                   (setq text (concat text (cddr path)))
                   (setq text-headings (concat text-headings
                                               (progn
                                                 (string-match text-headings-re (cddr path))
                                                 (match-string 0 (cddr path)))))
-                  (if cleared-paths
-                      (setcdr (last cleared-paths) (list path))
-                    (setq cleared-paths (list path))))
-             finally (if cleared-carryover-paths
-                         (setcdr (last cleared-carryover-paths) cleared-paths)
-                       (setq cleared-carryover-paths cleared-paths))
-             (setq prev-paths paths)))
+                  (if cleared-carryover-paths
+                      (setcdr (last cleared-carryover-paths) (list path))
+                    (setq cleared-carryover-paths (list path))))))
+        (message "cleared-carryover-paths: %S" cleared-carryover-paths)
         (if org-journal-carryover-headings-only
             (org-journal-carryover-items text-headings cleared-carryover-paths prev-buffer)
           (org-journal-carryover-items text cleared-carryover-paths prev-buffer)))
@@ -976,8 +973,9 @@ previous day's file to the current file."
               end (save-excursion (outline-next-heading) (point))
               text (buffer-substring-no-properties start end))
         (push (cons start (cons end text)) carryover-item-with-parents)))
+    ;; First add upper level headings, and lastly add carryover-item itself.
     (setq start (point-at-bol)
-          end (progn (outline-end-of-subtree) (outline-next-heading) (point))
+          end (progn (outline-next-heading) (point))
           text (buffer-substring-no-properties start end))
     (setq carryover-item-with-parents (append carryover-item-with-parents (list (cons start (cons end text)))))))
 
