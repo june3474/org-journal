@@ -136,7 +136,7 @@ to be done manually by calling `org-journal-invalidate-cache'."
 (defcustom org-journal-start-on-weekday 1
   "What day of the week to start a weekly journal.
 
-When `org-journal-file-type' is set to 'weekly, start the week on
+When `org-journal-file-type' is set to \\='weekly, start the week on
 this day.  Default is Monday."
   :type '(choice
 	  (const :tag "Sunday" 0)
@@ -393,7 +393,7 @@ This runs once per date, before `org-journal-after-entry-create-hook'.")
 (defvar org-journal--search-buffer "*Org-journal search*")
 
 (defvar-local org-journal--newly-created-p nil
-  "Will be set to 't' if `org-journal-new-entry' function creates a new 
+  "Will be set to \\='t\\=' if `org-journal-new-entry' function creates a new 
 journal(i.e., insert a date entry) for today or the given time.
 When today's journal was created before and re-opened later,
 this buffer-local variable remains to be nil.")
@@ -551,13 +551,13 @@ it will be deposed."
 (defun org-journal--convert-time-to-file-type-time (&optional time)
   "Converts TIME to the file type format date.
 
-If `org-journal-file-type' is 'weekly, the TIME will be rounded to
+If `org-journal-file-type' is \\='weekly, the TIME will be rounded to
 the first date of the week.
 
-If `org-journal-file-type' is 'monthly, the TIME will be rounded to
+If `org-journal-file-type' is \\='monthly, the TIME will be rounded to
 the first date of the month.
 
-If `org-journal-file-type' is 'yearly, the TIME will be rounded to
+If `org-journal-file-type' is \\='yearly, the TIME will be rounded to
 the first date of the year."
   (or time (setq time (current-time)))
   (pcase org-journal-file-type
@@ -722,7 +722,7 @@ hook is run."
           (unless match
             (goto-char (point-max))
             (forward-line))
-          (when (looking-back "[^\t ]" (point-at-bol))
+          (when (looking-back "[^\t ]" (pos-bol))
             (insert "\n"))
           (beginning-of-line)
           (insert entry-header)
@@ -779,7 +779,7 @@ hook is run."
   "Will be set to the `t' if `org-journal--open-entry' is visiting a
 buffer not open already, otherwise `nil'.")
 
-(defun org-journal--empty-journal-p (prev-buffer)
+(defun org-journal--empty-journal-p (_prev-buffer)
   (let (entry)
     ;; (with-current-buffer prev-buffer (save-buffer))
     (save-excursion
@@ -883,8 +883,8 @@ to process the carryover entries in `prev-buffer'."
       (save-excursion
         (while (re-search-forward "<\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}\\( [a-z]+\\)?\\)>" nil t)
           (unless (save-excursion
-                    (goto-char (point-at-bol))
-                    (re-search-forward "\\<\\(SCHEDULED\\|DEADLINE\\):" (point-at-eol) t))
+                    (goto-char (pos-bol))
+                    (re-search-forward "\\<\\(SCHEDULED\\|DEADLINE\\):" (pos-eol) t))
             (replace-match
              (format-time-string "%Y-%m-%d %a"
                                  (org-journal--calendar-date->time
@@ -973,7 +973,7 @@ previous day's file to the current file."
               text (buffer-substring-no-properties start end))
         (push (cons start (cons end text)) carryover-item-with-parents)))
     ;; First add upper level headings, and lastly add carryover-item itself.
-    (setq start (point-at-bol)
+    (setq start (pos-bol)
           end (progn (outline-next-heading) (point))
           text (buffer-substring-no-properties start end))
     (setq carryover-item-with-parents (append carryover-item-with-parents (list (cons start (cons end text)))))))
@@ -1021,7 +1021,7 @@ Month and Day capture group default to 1."
   "Return journal calendar-date from current buffer.
 
 This is the counterpart of `org-journal--file-name->calendar-date' for
-'weekly, 'monthly and 'yearly journal files."
+\\='weekly, \\='monthly and \\='yearly journal files."
   (let ((re (org-journal--format->regex org-journal-created-property-timestamp-format))
         date)
     (setq date (org-entry-get (point) "CREATED"))
@@ -1220,7 +1220,7 @@ The key is a journal date entry, and the value of the key is of the form
       (when (file-exists-p org-journal--cache-file)
         (with-temp-buffer
           (insert-file-contents org-journal--cache-file)
-          (setq org-journal--dates (read (buffer-substring (point-at-bol) (point-at-eol))))))))
+          (setq org-journal--dates (read (buffer-substring (pos-bol) (pos-eol))))))))
   (org-journal--sort-dates))
 
 (defvar org-journal--sorted-dates nil)
@@ -1314,7 +1314,7 @@ from oldest to newest."
           (while (org-up-heading-safe))
           (outline-hide-other)
           (outline-show-subtree)
-          (org-hide-drawer-all))
+          (org-fold-hide-drawer-all))
       (outline-show-all))))
 
 ;;;###autoload
@@ -1574,8 +1574,8 @@ Think of this as a faster, less fancy version of your `org-agenda'."
   "Return read period.
 
 If the PERIOD-NAME is nil, then ask the user for period start/end.
-If PERIOD-NAME is 'forever, set the period from the beginning of time
-to eternity. If PERIOD-NAME is a symbol equal to 'week, 'month or 'year
+If PERIOD-NAME is \\='forever, set the period from the beginning of time
+to eternity. If PERIOD-NAME is a symbol equal to \\='week, \\='month or \\='year
 then use current week, month or year from the calendar, accordingly."
   (cond
     ;; no period-name? ask the user for input
