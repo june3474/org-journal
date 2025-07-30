@@ -1,4 +1,4 @@
-[[https://travis-ci.org/bastibe/org-journal][file:https://travis-ci.org/bastibe/org-journal.svg?branch=master]] [[http://melpa.org/#/org-journal][file:http://melpa.org/packages/org-journal-badge.svg]] [[http://stable.melpa.org/#/org-journal][file:http://stable.melpa.org/packages/org-journal-badge.svg]] [[contributors][file:https://img.shields.io/github/contributors/bastibe/org-journal.svg]] [[license][file:https://img.shields.io/github/license/bastibe/org-journal.svg]]
+[[https://github.com/bastibe/org-journal/actions/workflows/test.yml][file:https://github.com/bastibe/org-journal/actions/workflows/test.yml/badge.svg?branch=master]] [[https://elpa.nongnu.org/nongnu/org-journal.html][https://elpa.nongnu.org/nongnu/org-journal.svg]] [[http://melpa.org/#/org-journal][file:http://melpa.org/packages/org-journal-badge.svg]] [[http://stable.melpa.org/#/org-journal][file:http://stable.melpa.org/packages/org-journal-badge.svg]] [[contributors][file:https://img.shields.io/github/contributors/bastibe/org-journal.svg]] [[license][file:https://img.shields.io/github/license/bastibe/org-journal.svg]]
 
 #+CAPTION: The org-journal logo
 [[./org-journal.svg]]
@@ -102,8 +102,8 @@ An example of a weekly/monthly/yearly journal file, see also
 
 ** Installation
 
-=org-journal= is available through [[http://marmalade-repo.org/][marmalade]], [[http://melpa.milkbox.net/][melpa]] and [[http://melpa-stable.milkbox.net/][melpa-stable]]. So installation
-should be trivial:
+=org-journal= is available through [[https://elpa.nongnu.org/][NonGNU ELPA]], [[https://melpa.org/][MELPA]] and [[https://stable.melpa.org/][MELPA Stable]]. So
+installation should be trivial:
 
 #+BEGIN_EXAMPLE
     M-x package-install org-journal
@@ -111,14 +111,19 @@ should be trivial:
 
 Then add =(require 'org-journal)= to your =.emacs=.
 
+*Note!* If you are using =org-mode= version 9.6 consider customizing the variable =org-element-use-cache= and setting it to =nil= to workaround [[https://github.com/bastibe/org-journal/issues/406][an issue where journal items are not properly carried over to the next day]]
+
 ** Quickstart
 
-Doing =M-x org-journal-new-entry= (or =C-c C-j=) will immediately create a journal
-directory in the default path (customized using the =org-journal-dir= variable), open or
-create a file in =org-journal-mode=, and insert a template for a new journal entry.
+Doing =M-x org-journal-new-entry= will immediately create a journal
+directory in the default path (customized using the =org-journal-dir=
+variable), open or create a file in =org-journal-mode=, and insert a
+template for a new journal entry.
 
-The same command with a prefix argument (=C-u C-c C-j=) will do everything mentioned while
-skipping entry creation, which is useful for looking at the current journal file.
+The same command with a prefix argument (=C-u M-x
+org-journal-new-entry=) will do everything mentioned while skipping
+entry creation, which is useful for looking at the current journal
+file.
 
 ** Basic Usage
 
@@ -222,6 +227,17 @@ Customization options related to the journal file contents:
   (setq org-journal-file-header 'org-journal-file-header-func)
   #+END_EXAMPLE
 
+- =org-journal-hide-entries-p= - a boolean (defaults to =true=) that will
+  hide previous journal entries if true. Can be set to =nil= to show previous
+  entries.
+
+*** =org-journal= behavior
+
+Customization options related to =org-journal= itself:
+
+- =org-journal-mode-hook= - List of functions to run when =org-journal-mode= is
+  loaded. By default this is set to ='(turn-on-visual-line-mode org-journal-default-enable-encryption)=.
+
 *** An example setup
 
 A very basic example of customization.
@@ -290,11 +306,11 @@ empty string =""=. Any [[http://orgmode.org/manual/Matching-tags-and-properties.
 todo states are allowed. By default this is ~TODO=”TODO”~. Which will
 match TODO items.
 
-The old carryover items in the previos day's journal are processed by the function assigned to =org-journal-handle-old-carryover= variable. 
+The old carryover items in the previous day's journal are processed by the function assigned to =org-journal-handle-old-carryover= variable.
 Default is to remove all of them. You can change this behavior by
 assigning a custom fuction to the variable.
 Your function has to take one argument, which is a list of old carryover entries. The list is in form of ((START_POINT (END_POINT . "TEXT")) ... (START_POINT (END_POINT . "TEXT"))); and in ascending order of START_POINT.
- 
+
 For example, you can choose putting a tag on the old carryover entries intead of removing them:
 
 #+begin_src elisp
@@ -303,7 +319,7 @@ For example, you can choose putting a tag on the old carryover entries intead of
     (let ((matcher (cdr (org-make-tags-matcher org-journal-carryover-items))))
       (dolist (entry (reverse old_carryover))
         (save-restriction
-          (narrow-to-region (car entry) (cadr entry)) 
+          (narrow-to-region (car entry) (cadr entry))
           (goto-char (point-min))
           (org-scan-tags '(lambda ()
                             (org-set-tags ":carried:"))
@@ -449,12 +465,6 @@ When working in an org-mode buffer the following org-journal key bindings are ov
 - =C-c C-f= (=org-journal-open-next-entry=) with =org-forward-heading-same-level=
 - =C-c C-b= (=org-journal-open-previous-entry=) with =org-backward-heading-same-level=
 - =C-c C-j= (=org-journal-new-entry=) with =org-goto=
-
-When working in an org-journal buffer the following org-mode key bindings are overwritten:
-- =C-c C-s= (=org-schedule=) with =org-journal-search=
-- =C-c C-f= (=org-forward-heading-same-level=) with =org-journal-open-next-entry=
-- =C-c C-b= (=org-backward-heading-same-level=) with =org-journal-open-previous-entry=
-- =C-c C-j= (=org-goto=) with =org-journal-new-entry=
 
 To workaround this, you can use user bindings of the form =C-c ?=, where =?= can be any letter, to call the org-journal functions. This allows you to have a set of keybindings that work the same in org-mode and org-journal buffers. However, this is Emacs, and if you don't like a key binding, change it!
 
