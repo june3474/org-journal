@@ -1,13 +1,20 @@
-EMACS=emacs
+EMACS = emacs
+EASK = eask
+BATCH = $(EMACS) -Q -batch -L .
+
 export LC_ALL=C
 
-all: clean compile test
+all: clean compile gen-autoloads test
 
-test:
-	${EMACS} -Q -batch -L . -l tests/org-journal-test -f ert-run-tests-batch-and-exit
+# Forcefully remove files ignored by Git.
+clean:
+	git clean -Xf
 
 compile:
-	${EMACS} -Q -batch -L . -f batch-byte-compile tests/org-journal-test.el org-journal.el
+	$(EASK) compile
 
-clean:
-	rm -f *.elc
+gen-autoloads:
+	$(EASK) generate autoloads
+
+test:
+	$(EASK) test ert ./tests/*.el
